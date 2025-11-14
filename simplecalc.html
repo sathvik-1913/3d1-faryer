@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campacola 3D Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ff003c 0%, #ff8c00 100%);
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            perspective: 1000px;
+        }
+
+        .calculator {
+            background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            transform: rotateX(5deg);
+            border: 5px solid #ff003c;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, #ff003c, #ff8c00, #ff003c);
+            z-index: -1;
+            border-radius: 35px;
+            filter: blur(20px);
+            opacity: 0.7;
+        }
+
+        .campacola-header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .campacola-header h1 {
+            color: #ff003c;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow:
+                0 0 10px #ff003c,
+                0 0 20px #ff003c,
+                0 0 30px #ff003c;
+            margin-bottom: 5px;
+            font-weight: 900;
+        }
+
+        .campacola-header p {
+            color: #ff8c00;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px #ff8c00;
+        }
+
+        .display {
+            background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: right;
+            box-shadow:
+                inset 0 5px 10px rgba(0, 0, 0, 0.5),
+                0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #ff003c;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 0, 60, 0.1) 50%, transparent 70%);
+            z-index: 0;
+        }
+
+        .previous-operand {
+            color: rgba(255, 140, 0, 0.7);
+            font-size: 1.2rem;
+            min-height: 1.5rem;
+            overflow: hidden;
+            word-wrap: break-word;
+            text-shadow: 0 0 5px rgba(255, 140, 0, 0.5);
+        }
+
+        .current-operand {
+            color: #ff8c00;
+            font-size: 2.5rem;
+            font-weight: 700;
+            min-height: 3rem;
+            overflow: hidden;
+            word-wrap: break-word;
+            text-shadow:
+                0 0 10px #ff8c00,
+                0 0 20px rgba(255, 140, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .calc-btn {
+            border: none;
+            border-radius: 15px;
+            padding: 20px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+            box-shadow:
+                0 8px 0 rgba(0, 0, 0, 0.3),
+                0 15px 20px rgba(0, 0, 0, 0.35);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .calc-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.1));
+            z-index: 1;
+        }
+
+        .calc-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 2;
+        }
+
+        .calc-btn:active {
+            transform: translateY(8px);
+            box-shadow:
+                0 0 0 rgba(0, 0, 0, 0.3),
+                0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .calc-btn.glow::after {
+            opacity: 1;
+            animation: glowPulse 0.5s ease-out;
+        }
+
+        @keyframes glowPulse {
+            0% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+        }
+
+        .number,
+        .decimal {
+            background: linear-gradient(145deg, #333, #222);
+            border: 2px solid #555;
+        }
+
+        .number:hover,
+        .decimal:hover {
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+        }
+
+        .number.glow,
+        .decimal.glow {
+            box-shadow:
+                0 0 20px rgba(255, 255, 255, 0.7),
+                0 8px 0 rgba(0, 0, 0, 0.3),
+                0 15px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .operator {
+            background: linear-gradient(145deg, #ff003c, #cc0030);
+            border: 2px solid #ff3366;
+        }
+
+        .operator:hover {
+            background: linear-gradient(145deg, #ff1a4d, #d90033);
+        }
+
+        .operator.glow {
+            box-shadow:
+                0 0 20px rgba(255, 0, 60, 0.8),
+                0 8px 0 rgba(0, 0, 0, 0.3),
+                0 15px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .equals {
+            background: linear-gradient(145deg, #ff8c00, #cc7000);
+            border: 2px solid #ffa733;
+        }
+
+        .equals:hover {
+            background: linear-gradient(145deg, #ff9933, #d97a00);
+        }
+
+        .equals.glow {
+            box-shadow:
+                0 0 20px rgba(255, 140, 0, 0.8),
+                0 8px 0 rgba(0, 0, 0, 0.3),
+                0 15px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .clear,
+        .delete {
+            background: linear-gradient(145deg, #555, #444);
+            border: 2px solid #777;
+        }
+
+        .clear:hover,
+        .delete:hover {
+            background: linear-gradient(145deg, #5a5a5a, #4a4a4a);
+        }
+
+        .clear.glow,
+        .delete.glow {
+            box-shadow:
+                0 0 20px rgba(200, 200, 255, 0.7),
+                0 8px 0 rgba(0, 0, 0, 0.3),
+                0 15px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .span-two {
+            grid-column: span 2;
+        }
+
+        .bubbles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: rise 10s infinite ease-in;
+        }
+
+        .bubble:nth-child(1) {
+            width: 40px;
+            height: 40px;
+            left: 10%;
+            animation-duration: 8s;
+        }
+
+        .bubble:nth-child(2) {
+            width: 20px;
+            height: 20px;
+            left: 20%;
+            animation-duration: 5s;
+            animation-delay: 1s;
+        }
+
+        .bubble:nth-child(3) {
+            width: 50px;
+            height: 50px;
+            left: 35%;
+            animation-duration: 7s;
+            animation-delay: 2s;
+        }
+
+        .bubble:nth-child(4) {
+            width: 80px;
+            height: 80px;
+            left: 50%;
+            animation-duration: 11s;
+            animation-delay: 0s;
+        }
+
+        .bubble:nth-child(5) {
+            width: 35px;
+            height: 35px;
+            left: 55%;
+            animation-duration: 6s;
+            animation-delay: 1s;
+        }
+
+        .bubble:nth-child(6) {
+            width: 45px;
+            height: 45px;
+            left: 65%;
+            animation-duration: 8s;
+            animation-delay: 3s;
+        }
+
+        .bubble:nth-child(7) {
+            width: 25px;
+            height: 25px;
+            left: 75%;
+            animation-duration: 7s;
+            animation-delay: 2s;
+        }
+
+        .bubble:nth-child(8) {
+            width: 60px;
+            height: 60px;
+            left: 80%;
+            animation-duration: 6s;
+            animation-delay: 1s;
+        }
+
+        .bubble:nth-child(9) {
+            width: 15px;
+            height: 15px;
+            left: 70%;
+            animation-duration: 9s;
+            animation-delay: 0s;
+        }
+
+        .bubble:nth-child(10) {
+            width: 90px;
+            height: 90px;
+            left: 25%;
+            animation-duration: 12s;
+            animation-delay: 4s;
+        }
+
+        @keyframes rise {
+            0% {
+                bottom: -100px;
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(100px);
+            }
+
+            100% {
+                bottom: 1080px;
+                transform: translateX(-200px);
+            }
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 20px;
+            }
+
+            .calc-btn {
+                padding: 15px 0;
+                font-size: 1.3rem;
+            }
+
+            .current-operand {
+                font-size: 2rem;
+            }
+
+            .campacola-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="calculator">
+            <div class="bubbles">
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+            </div>
+
+            <div class="campacola-header">
+                <h1>Campacola</h1>
+                <p>3D CALCULATOR</p>
+            </div>
+
+            <div class="display">
+                <div class="previous-operand"></div>
+                <div class="current-operand">0</div>
+            </div>
+
+            <div class="buttons-grid">
+                <button class="calc-btn clear span-two">AC</button>
+                <button class="calc-btn delete">DEL</button>
+                <button class="calc-btn operator" data-operation="÷">÷</button>
+                <button class="calc-btn number" data-number="7">7</button>
+                <button class="calc-btn number" data-number="8">8</button>
+                <button class="calc-btn number" data-number="9">9</button>
+                <button class="calc-btn operator" data-operation="×">×</button>
+                <button class="calc-btn number" data-number="4">4</button>
+                <button class="calc-btn number" data-number="5">5</button>
+                <button class="calc-btn number" data-number="6">6</button>
+                <button class="calc-btn operator" data-operation="-">-</button>
+                <button class="calc-btn number" data-number="1">1</button>
+                <button class="calc-btn number" data-number="2">2</button>
+                <button class="calc-btn number" data-number="3">3</button>
+                <button class="calc-btn operator" data-operation="+">+</button>
+                <button class="calc-btn number span-two" data-number="0">0</button>
+                <button class="calc-btn decimal" data-number=".">.</button>
+                <button class="calc-btn equals">=</button>
+            </div>
+        </div>
+
+        <footer>
+            Campacola 3D Calculator - Refresh Your Calculations!
+        </footer>
+    </div>
+
+    <script>
+        class Calculator {
+            constructor(previousOperandElement, currentOperandElement) {
+                this.previousOperandElement = previousOperandElement;
+                this.currentOperandElement = currentOperandElement;
+                this.clear();
+            }
+
+            clear() {
+                this.currentOperand = '0';
+                this.previousOperand = '';
+                this.operation = undefined;
+                this.updateDisplay();
+            }
+
+            delete() {
+                if (this.currentOperand === '0') return;
+                this.currentOperand = this.currentOperand.toString().slice(0, -1);
+                if (this.currentOperand === '') {
+                    this.currentOperand = '0';
+                }
+                this.updateDisplay();
+            }
+
+            appendNumber(number) {
+                if (number === '.' && this.currentOperand.includes('.')) return;
+                if (this.currentOperand === '0' && number !== '.') {
+                    this.currentOperand = number;
+                } else {
+                    this.currentOperand = this.currentOperand.toString() + number;
+                }
+                this.updateDisplay();
+            }
+
+            chooseOperation(operation) {
+                if (this.currentOperand === '') return;
+                if (this.previousOperand !== '') {
+                    this.compute();
+                }
+                this.operation = operation;
+                this.previousOperand = this.currentOperand;
+                this.currentOperand = '0';
+                this.updateDisplay();
+            }
+
+            compute() {
+                let computation;
+                const prev = parseFloat(this.previousOperand);
+                const current = parseFloat(this.currentOperand);
+                if (isNaN(prev) || isNaN(current)) return;
+
+                switch (this.operation) {
+                    case '+':
+                        computation = prev + current;
+                        break;
+                    case '-':
+                        computation = prev - current;
+                        break;
+                    case '×':
+                        computation = prev * current;
+                        break;
+                    case '÷':
+                        if (current === 0) {
+                            alert("Cannot divide by zero!");
+                            return;
+                        }
+                        computation = prev / current;
+                        break;
+                    default:
+                        return;
+                }
+
+                this.currentOperand = computation.toString();
+                this.operation = undefined;
+                this.previousOperand = '';
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                this.currentOperandElement.innerText = this.currentOperand;
+                if (this.operation != null) {
+                    this.previousOperandElement.innerText =
+                        `${this.previousOperand} ${this.operation}`;
+                } else {
+                    this.previousOperandElement.innerText = this.previousOperand;
+                }
+            }
+        }
+
+        // Initialize calculator
+        const previousOperandElement = document.querySelector('.previous-operand');
+        const currentOperandElement = document.querySelector('.current-operand');
+        const calculator = new Calculator(previousOperandElement, currentOperandElement);
+
+        // Function to add glow effect
+        function addGlowEffect(button) {
+            button.classList.add('glow');
+            setTimeout(() => {
+                button.classList.remove('glow');
+            }, 500);
+        }
+
+        // Event listeners for buttons
+        document.querySelectorAll('.number').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.appendNumber(button.getAttribute('data-number'));
+                // Add click effect
+                button.style.transform = 'translateY(8px)';
+                button.style.boxShadow = '0 0 0 rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.3)';
+                addGlowEffect(button);
+                setTimeout(() => {
+                    button.style.transform = 'translateY(0)';
+                    button.style.boxShadow = '0 8px 0 rgba(0, 0, 0, 0.3), 0 15px 20px rgba(0, 0, 0, 0.35)';
+                }, 150);
+            });
+        });
+
+        document.querySelectorAll('.operator').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.chooseOperation(button.getAttribute('data-operation'));
+                // Add click effect
+                button.style.transform = 'translateY(8px)';
+                button.style.boxShadow = '0 0 0 rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.3)';
+                addGlowEffect(button);
+                setTimeout(() => {
+                    button.style.transform = 'translateY(0)';
+                    button.style.boxShadow = '0 8px 0 rgba(0, 0, 0, 0.3), 0 15px 20px rgba(0, 0, 0, 0.35)';
+                }, 150);
+            });
+        });
+
+        document.querySelector('.equals').addEventListener('click', () => {
+            calculator.compute();
+            // Add click effect
+            const button = document.querySelector('.equals');
+            button.style.transform = 'translateY(8px)';
+            button.style.boxShadow = '0 0 0 rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.3)';
+            addGlowEffect(button);
+            setTimeout(() => {
+                button.style.transform = 'translateY(0)';
+                button.style.boxShadow = '0 8px 0 rgba(0, 0, 0, 0.3), 0 15px 20px rgba(0, 0, 0, 0.35)';
+            }, 150);
+        });
+
+        document.querySelector('.clear').addEventListener('click', () => {
+            calculator.clear();
+            // Add click effect
+            const button = document.querySelector('.clear');
+            button.style.transform = 'translateY(8px)';
+            button.style.boxShadow = '0 0 0 rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.3)';
+            addGlowEffect(button);
+            setTimeout(() => {
+                button.style.transform = 'translateY(0)';
+                button.style.boxShadow = '0 8px 0 rgba(0, 0, 0, 0.3), 0 15px 20px rgba(0, 0, 0, 0.35)';
+            }, 150);
+        });
+
+        document.querySelector('.delete').addEventListener('click', () => {
+            calculator.delete();
+            // Add click effect
+            const button = document.querySelector('.delete');
+            button.style.transform = 'translateY(8px)';
+            button.style.boxShadow = '0 0 0 rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.3)';
+            addGlowEffect(button);
+            setTimeout(() => {
+                button.style.transform = 'translateY(0)';
+                button.style.boxShadow = '0 8px 0 rgba(0, 0, 0, 0.3), 0 15px 20px rgba(0, 0, 0, 0.35)';
+            }, 150);
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', (event) => {
+            if (event.key >= '0' && event.key <= '9') {
+                calculator.appendNumber(event.key);
+                // Find and trigger glow effect for the corresponding button
+                const button = document.querySelector(`.number[data-number="${event.key}"]`);
+                if (button) addGlowEffect(button);
+            } else if (event.key === '.') {
+                calculator.appendNumber('.');
+                const button = document.querySelector('.decimal');
+                if (button) addGlowEffect(button);
+            } else if (event.key === '+' || event.key === '-') {
+                calculator.chooseOperation(event.key);
+                const button = document.querySelector(`.operator[data-operation="${event.key}"]`);
+                if (button) addGlowEffect(button);
+            } else if (event.key === '*') {
+                calculator.chooseOperation('×');
+                const button = document.querySelector('.operator[data-operation="×"]');
+                if (button) addGlowEffect(button);
+            } else if (event.key === '/') {
+                event.preventDefault();
+                calculator.chooseOperation('÷');
+                const button = document.querySelector('.operator[data-operation="÷"]');
+                if (button) addGlowEffect(button);
+            } else if (event.key === 'Enter' || event.key === '=') {
+                calculator.compute();
+                const button = document.querySelector('.equals');
+                if (button) addGlowEffect(button);
+            } else if (event.key === 'Backspace') {
+                calculator.delete();
+                const button = document.querySelector('.delete');
+                if (button) addGlowEffect(button);
+            } else if (event.key === 'Escape') {
+                calculator.clear();
+                const button = document.querySelector('.clear');
+                if (button) addGlowEffect(button);
+            }
+        });
+    </script>
+</body>
+
+</html>

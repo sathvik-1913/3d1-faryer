@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account - Farmer Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2d5a27;
+            --secondary: #4a7c59;
+            --accent: #ffa726;
+            --light: #f5f7fa;
+            --dark: #333;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0 10px;
+        }
+
+        .nav-links li {
+            margin-bottom: 5px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-links i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .header h2 {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Account Summary Cards */
+        .account-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        /* Section Styles */
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 8px 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Profile Section */
+        .profile-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .profile-image {
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 50px;
+            margin: 0 auto 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .change-photo-btn {
+            background: none;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .change-photo-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .detail-group {
+            margin-bottom: 20px;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .detail-value.editable {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+
+        .edit-icon {
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .edit-icon:hover {
+            color: var(--secondary);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: var(--dark);
+        }
+
+        /* Loading States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid var(--primary);
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 10px 0;
+            }
+
+            .nav-links {
+                display: flex;
+                overflow-x: auto;
+            }
+
+            .nav-links li {
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+
+            .profile-section {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .account-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-leaf"></i> Farmer<span>Direct</span></h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="farmer-main-interface.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#" class="active"><i class="fas fa-user"></i> Account</a></li>
+                <li><a href="farmer-sales.html"><i class="fas fa-shopping-cart"></i> Sales</a></li>
+                <li><a href="farmer-products.html"><i class="fas fa-seedling"></i> My Products</a></li>
+                <li><a href="farmers-analytics-page.html"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="farmer-settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="login-page.html" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Account Details</h2>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">JD</div>
+                    <div>
+                        <div id="userName">Loading...</div>
+                        <div style="font-size: 12px; color: #666;">Premium Farmer</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Summary Cards -->
+            <div class="account-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Member Since</div>
+                        <div class="card-icon" style="background-color: var(--success);">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="memberSince">2023</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-check-circle"></i> Active Member
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Total Products</div>
+                        <div class="card-icon" style="background-color: var(--accent);">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="totalProducts">0</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> <span id="productsChange">0</span> this month
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Customer Rating</div>
+                        <div class="card-icon" style="background-color: var(--warning);">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="customerRating">0/5</div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> <span id="ratingChange">0</span> from last month
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Total Sales</div>
+                        <div class="card-icon" style="background-color: var(--primary);">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                    </div>
+                    <div class="card-value"><span>₹</span><span id="totalSales">0</span></div>
+                    <div class="card-change positive">
+                        <i class="fas fa-arrow-up"></i> <span id="salesChange">0%</span> from last month
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Information Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Profile Information</h3>
+                    <button class="btn" id="editProfileBtn"><i class="fas fa-edit"></i> Edit Profile</button>
+                </div>
+
+                <div class="profile-section">
+                    <div class="profile-image">
+                        <div class="profile-avatar" id="profileAvatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <button class="change-photo-btn" id="changePhotoBtn">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </button>
+                    </div>
+
+                    <div class="profile-details">
+                        <div class="detail-group">
+                            <div class="detail-label">Full Name</div>
+                            <div class="detail-value editable">
+                                <span id="fullNameValue">John Farmer</span>
+                                <i class="fas fa-edit edit-icon" data-field="name"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-group">
+                            <div class="detail-label">Email Address</div>
+                            <div class="detail-value editable">
+                                <span id="emailValue">john@example.com</span>
+                                <i class="fas fa-edit edit-icon" data-field="email"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-group">
+                            <div class="detail-label">Phone Number</div>
+                            <div class="detail-value editable">
+                                <span id="phoneValue">+91 98765 43210</span>
+                                <i class="fas fa-edit edit-icon" data-field="phone"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-group">
+                            <div class="detail-label">Farm Name</div>
+                            <div class="detail-value editable">
+                                <span id="farmNameValue">Green Valley Farm</span>
+                                <i class="fas fa-edit edit-icon" data-field="farmName"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-group">
+                            <div class="detail-label">Location</div>
+                            <div class="detail-value editable">
+                                <span id="locationValue">Punjab, India</span>
+                                <i class="fas fa-edit edit-icon" data-field="location"></i>
+                            </div>
+                        </div>
+
+                        <div class="detail-group">
+                            <div class="detail-label">Farm Size</div>
+                            <div class="detail-value editable">
+                                <span id="farmSizeValue">25 acres</span>
+                                <i class="fas fa-edit edit-icon" data-field="farmSize"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farm Details Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Farm Details</h3>
+                    <button class="btn" id="editFarmBtn"><i class="fas fa-edit"></i> Edit Farm Details</button>
+                </div>
+
+                <div class="profile-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Farm Type</div>
+                        <div class="detail-value editable">
+                            <span id="farmTypeValue">Organic Mixed Farming</span>
+                            <i class="fas fa-edit edit-icon" data-field="farmType"></i>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Main Products</div>
+                        <div class="detail-value editable">
+                            <span id="mainProductsValue">Vegetables, Fruits, Grains</span>
+                            <i class="fas fa-edit edit-icon" data-field="mainProducts"></i>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Certifications</div>
+                        <div class="detail-value editable">
+                            <span id="certificationsValue">Organic Certified, GAP Certified</span>
+                            <i class="fas fa-edit edit-icon" data-field="certifications"></i>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Years of Experience</div>
+                        <div class="detail-value editable">
+                            <span id="experienceValue">15 years</span>
+                            <i class="fas fa-edit edit-icon" data-field="experience"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Details Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Bank Details</h3>
+                    <button class="btn" id="editBankBtn"><i class="fas fa-edit"></i> Edit Bank Details</button>
+                </div>
+
+                <div class="profile-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Account Holder Name</div>
+                        <div class="detail-value editable">
+                            <span id="accountHolderValue">John Farmer</span>
+                            <i class="fas fa-edit edit-icon" data-field="accountHolder"></i>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Bank Name</div>
+                        <div class="detail-value editable">
+                            <span id="bankNameValue">State Bank of India</span>
+                            <i class="fas fa-edit edit-icon" data-field="bankName"></i>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Account Number</div>
+                        <div class="detail-value editable">
+                            <span id="accountNumberValue">XXXX XXXX 1234</span>
+                            <i class="fas fa-edit edit-icon" data-field="accountNumber"></i>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">IFSC Code</div>
+                        <div class="detail-value editable">
+                            <span id="ifscValue">SBIN0000123</span>
+                            <i class="fas fa-edit edit-icon" data-field="ifsc"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export JSON Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Data Management</h3>
+                </div>
+                <div class="profile-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Export Data</div>
+                        <div class="detail-value">
+                            <button class="btn" id="exportJsonBtn">
+                                <i class="fas fa-download"></i> Export JSON Data
+                            </button>
+                        </div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">Import Data</div>
+                        <div class="detail-value">
+                            <input type="file" id="importJsonFile" accept=".json" style="display: none;">
+                            <button class="btn" id="importJsonBtn">
+                                <i class="fas fa-upload"></i> Import JSON Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Edit Information</h3>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editField">
+
+                <div class="form-group">
+                    <label class="form-label" id="fieldLabel">Field Name</label>
+                    <input type="text" class="form-control" id="fieldValue" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                    <button type="submit" class="btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // JSON-based data storage
+        class JSONDataStorage {
+            constructor() {
+                this.data = {
+                    users: [],
+                    products: [],
+                    sales: [],
+                    currentUser: null
+                };
+                this.loadFromStorage();
+            }
+
+            // Load data from localStorage or initialize with sample data
+            loadFromStorage() {
+                const storedData = localStorage.getItem('farmerDashboardData');
+                if (storedData) {
+                    this.data = JSON.parse(storedData);
+                } else {
+                    this.initializeSampleData();
+                }
+            }
+
+            // Save data to localStorage
+            saveToStorage() {
+                localStorage.setItem('farmerDashboardData', JSON.stringify(this.data));
+            }
+
+            // Initialize with sample data
+            initializeSampleData() {
+                // Sample user with detailed information
+                this.data.currentUser = {
+                    id: '1',
+                    name: 'John Farmer',
+                    email: 'john@example.com',
+                    phone: '+91 98765 43210',
+                    farmName: 'Green Valley Farm',
+                    location: 'Punjab, India',
+                    farmSize: '25 acres',
+                    farmType: 'Organic Mixed Farming',
+                    mainProducts: 'Vegetables, Fruits, Grains',
+                    certifications: 'Organic Certified, GAP Certified',
+                    experience: '15 years',
+                    accountHolder: 'John Farmer',
+                    bankName: 'State Bank of India',
+                    accountNumber: 'XXXX XXXX 1234',
+                    ifsc: 'SBIN0000123',
+                    type: 'farmer',
+                    joinDate: new Date('2023-01-15').toISOString(),
+                    rating: 4.7,
+                    totalSales: 125000,
+                    totalProducts: 12
+                };
+
+                // Initialize sample products if they don't exist
+                if (!this.data.products || this.data.products.length === 0) {
+                    this.data.products = [
+                        {
+                            id: '1',
+                            farmerId: '1',
+                            name: 'Organic Tomatoes',
+                            category: 'vegetables',
+                            price: 80,
+                            unit: 'kg',
+                            stock: 50,
+                            status: 'active',
+                            image: '',
+                            description: 'Fresh organic tomatoes from our farm',
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: '2',
+                            farmerId: '1',
+                            name: 'Fresh Carrots',
+                            category: 'vegetables',
+                            price: 60,
+                            unit: 'kg',
+                            stock: 30,
+                            status: 'active',
+                            image: '',
+                            description: 'Sweet and crunchy carrots',
+                            createdAt: new Date(Date.now() - 86400000).toISOString()
+                        }
+                    ];
+                }
+
+                // Initialize sample sales if they don't exist
+                if (!this.data.sales || this.data.sales.length === 0) {
+                    this.data.sales = [
+                        {
+                            id: '1',
+                            farmerId: '1',
+                            productId: '1',
+                            productName: 'Organic Tomatoes',
+                            buyerName: 'Rajesh Kumar',
+                            amount: 320,
+                            quantity: 4,
+                            status: 'completed',
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: '2',
+                            farmerId: '1',
+                            productId: '2',
+                            productName: 'Fresh Carrots',
+                            buyerName: 'Priya Sharma',
+                            amount: 180,
+                            quantity: 3,
+                            status: 'completed',
+                            createdAt: new Date(Date.now() - 86400000).toISOString()
+                        }
+                    ];
+                }
+
+                this.saveToStorage();
+            }
+
+            // Get current user
+            getCurrentUser() {
+                return this.data.currentUser;
+            }
+
+            // Update user information
+            updateUser(updates) {
+                if (this.data.currentUser) {
+                    this.data.currentUser = {
+                        ...this.data.currentUser,
+                        ...updates
+                    };
+                    this.saveToStorage();
+                    return this.data.currentUser;
+                }
+                return null;
+            }
+
+            // Get products
+            getProducts() {
+                return this.data.products || [];
+            }
+
+            // Get farmer products
+            getFarmerProducts() {
+                const currentUser = this.getCurrentUser();
+                if (!currentUser) return [];
+                return this.data.products.filter(product => product.farmerId === currentUser.id);
+            }
+
+            // Get sales
+            getSales() {
+                return this.data.sales || [];
+            }
+
+            // Get farmer sales
+            getFarmerSales() {
+                const currentUser = this.getCurrentUser();
+                if (!currentUser) return [];
+                return this.data.sales.filter(sale => sale.farmerId === currentUser.id);
+            }
+
+            // Export all data as JSON
+            exportData() {
+                return JSON.stringify(this.data, null, 2);
+            }
+
+            // Import data from JSON
+            importData(jsonData) {
+                try {
+                    const importedData = JSON.parse(jsonData);
+                    this.data = importedData;
+                    this.saveToStorage();
+                    return true;
+                } catch (error) {
+                    console.error('Error importing data:', error);
+                    return false;
+                }
+            }
+        }
+
+        // Initialize JSON data storage
+        const dataStorage = new JSONDataStorage();
+
+        // Current editing field
+        let currentEditField = '';
+
+        // Get current user from JSON storage
+        function getCurrentUser() {
+            return dataStorage.getCurrentUser();
+        }
+
+        // Update account summary cards
+        function updateAccountCards() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+
+            // Calculate stats
+            const farmerProducts = dataStorage.getFarmerProducts();
+            const farmerSales = dataStorage.getFarmerSales();
+
+            const totalProducts = farmerProducts.length;
+            const totalSales = farmerSales.reduce((sum, sale) => sum + sale.amount, 0) || currentUser.totalSales || 0;
+            const customerRating = currentUser.rating || 4.5;
+            const joinDate = new Date(currentUser.joinDate).getFullYear();
+
+            // Update card values
+            document.getElementById('memberSince').textContent = joinDate;
+            document.getElementById('totalProducts').textContent = totalProducts;
+            document.getElementById('customerRating').textContent = `${customerRating}/5`;
+            document.getElementById('totalSales').textContent = totalSales.toLocaleString();
+
+            // Update change indicators (simulated)
+            document.getElementById('productsChange').textContent = Math.floor(totalProducts * 0.3);
+            document.getElementById('ratingChange').textContent = '0.2';
+            document.getElementById('salesChange').textContent = '12.5%';
+        }
+
+        // Update profile information
+        function updateProfileInfo() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+
+            // Update user info in header
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userAvatar').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+            // Update profile details
+            document.getElementById('fullNameValue').textContent = currentUser.name;
+            document.getElementById('emailValue').textContent = currentUser.email;
+            document.getElementById('phoneValue').textContent = currentUser.phone || 'Not provided';
+            document.getElementById('farmNameValue').textContent = currentUser.farmName || 'Not provided';
+            document.getElementById('locationValue').textContent = currentUser.location || 'Not provided';
+            document.getElementById('farmSizeValue').textContent = currentUser.farmSize || 'Not provided';
+            document.getElementById('farmTypeValue').textContent = currentUser.farmType || 'Not provided';
+            document.getElementById('mainProductsValue').textContent = currentUser.mainProducts || 'Not provided';
+            document.getElementById('certificationsValue').textContent = currentUser.certifications || 'Not provided';
+            document.getElementById('experienceValue').textContent = currentUser.experience || 'Not provided';
+            document.getElementById('accountHolderValue').textContent = currentUser.accountHolder || 'Not provided';
+            document.getElementById('bankNameValue').textContent = currentUser.bankName || 'Not provided';
+            document.getElementById('accountNumberValue').textContent = currentUser.accountNumber || 'Not provided';
+            document.getElementById('ifscValue').textContent = currentUser.ifsc || 'Not provided';
+        }
+
+        // Open edit modal
+        function openEditModal(field, value, label) {
+            currentEditField = field;
+            document.getElementById('modalTitle').textContent = `Edit ${label}`;
+            document.getElementById('fieldLabel').textContent = label;
+            document.getElementById('fieldValue').value = value;
+            document.getElementById('editField').value = field;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        // Export JSON data
+        function exportJsonData() {
+            const jsonData = dataStorage.exportData();
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'farmer-data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('Data exported successfully!');
+        }
+
+        // Import JSON data
+        function importJsonData(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const jsonData = e.target.result;
+                    const success = dataStorage.importData(jsonData);
+                    if (success) {
+                        updateProfileInfo();
+                        updateAccountCards();
+                        alert('Data imported successfully!');
+                    } else {
+                        alert('Error importing data. Please check the file format.');
+                    }
+                } catch (error) {
+                    alert('Error reading file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Initialize account page
+        function initializeAccountPage() {
+            updateProfileInfo();
+            updateAccountCards();
+        }
+
+        // Modal event handlers
+        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('editModal').style.display = 'none';
+        });
+
+        document.getElementById('cancelEditBtn').addEventListener('click', function () {
+            document.getElementById('editModal').style.display = 'none';
+        });
+
+        // Edit form submission
+        document.getElementById('editForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const field = document.getElementById('editField').value;
+            const value = document.getElementById('fieldValue').value;
+
+            // Update the user in JSON storage
+            const updatedUser = dataStorage.updateUser({
+                [field]: value
+            });
+
+            if (updatedUser) {
+                // Update display
+                updateProfileInfo();
+                updateAccountCards();
+
+                // Close modal
+                document.getElementById('editModal').style.display = 'none';
+
+                // Show success message
+                alert('Information updated successfully!');
+            }
+        });
+
+        // Edit icon click handlers
+        document.querySelectorAll('.edit-icon').forEach(icon => {
+            icon.addEventListener('click', function () {
+                const field = this.getAttribute('data-field');
+                const valueElement = document.getElementById(`${field}Value`);
+                const value = valueElement.textContent;
+
+                // Define field labels
+                const fieldLabels = {
+                    name: 'Full Name',
+                    email: 'Email Address',
+                    phone: 'Phone Number',
+                    farmName: 'Farm Name',
+                    location: 'Location',
+                    farmSize: 'Farm Size',
+                    farmType: 'Farm Type',
+                    mainProducts: 'Main Products',
+                    certifications: 'Certifications',
+                    experience: 'Years of Experience',
+                    accountHolder: 'Account Holder Name',
+                    bankName: 'Bank Name',
+                    accountNumber: 'Account Number',
+                    ifsc: 'IFSC Code'
+                };
+
+                openEditModal(field, value, fieldLabels[field] || field);
+            });
+        });
+
+        // Edit profile button
+        document.getElementById('editProfileBtn').addEventListener('click', function () {
+            alert('Opening full profile editor...');
+            // In a real implementation, this would open a comprehensive profile editor
+        });
+
+        // Edit farm details button
+        document.getElementById('editFarmBtn').addEventListener('click', function () {
+            alert('Opening farm details editor...');
+            // In a real implementation, this would open a farm details editor
+        });
+
+        // Edit bank details button
+        document.getElementById('editBankBtn').addEventListener('click', function () {
+            alert('Opening bank details editor...');
+            // In a real implementation, this would open a bank details editor
+        });
+
+        // Change photo button
+        document.getElementById('changePhotoBtn').addEventListener('click', function () {
+            alert('Photo change functionality would be implemented here');
+            // In a real implementation, this would allow uploading a new profile photo
+        });
+
+        // Export JSON button
+        document.getElementById('exportJsonBtn').addEventListener('click', exportJsonData);
+
+        // Import JSON button
+        document.getElementById('importJsonBtn').addEventListener('click', function () {
+            document.getElementById('importJsonFile').click();
+        });
+
+        document.getElementById('importJsonFile').addEventListener('change', function (e) {
+            if (e.target.files.length > 0) {
+                importJsonData(e.target.files[0]);
+            }
+        });
+
+        // Logout functionality
+        document.getElementById('logoutLink').addEventListener('click', function (e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                // Redirect to login page
+                window.location.href = 'login-page.html';
+            }
+        });
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeAccountPage();
+
+            // Add active class to clicked nav items
+            const navLinks = document.querySelectorAll('.nav-links a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    if (this.getAttribute('href') === '#') {
+                        e.preventDefault();
+                    }
+                    // Don't prevent default for external links
+                    if (this.getAttribute('href') !== 'login-page.html') {
+                        navLinks.forEach(item => item.classList.remove('active'));
+                        this.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

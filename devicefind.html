@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Login Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+        }
+
+        .device-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .device-card.active {
+            display: block;
+        }
+
+        .device-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .device-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .device-message {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .pc-card {
+            border-left: 5px solid #2575fc;
+        }
+
+        .ios-card {
+            border-left: 5px solid #ff2d55;
+        }
+
+        .android-card {
+            border-left: 5px solid #34c759;
+        }
+
+        .tv-card {
+            border-left: 5px solid #ff9500;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.6);
+        }
+
+        .login-btn:active {
+            transform: translateY(1px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-text {
+            margin-top: 30px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Device Login Detection</h1>
+
+        <div class="device-card pc-card">
+            <div class="device-icon">💻</div>
+            <div class="device-name">PC / Desktop</div>
+            <div class="device-message">You have logged in on a PC/Desktop device.</div>
+        </div>
+
+        <div class="device-card ios-card">
+            <div class="device-icon">📱</div>
+            <div class="device-name">iOS Device</div>
+            <div class="device-message">You have logged in on an iOS device (iPhone/iPad).</div>
+        </div>
+
+        <div class="device-card android-card">
+            <div class="device-icon">📱</div>
+            <div class="device-name">Android Device</div>
+            <div class="device-message">You have logged in on an Android device.</div>
+        </div>
+
+        <div class="device-card tv-card">
+            <div class="device-icon">📺</div>
+            <div class="device-name">Smart TV</div>
+            <div class="device-message">You have logged in on a Smart TV.</div>
+        </div>
+
+        <button class="login-btn" id="loginBtn">Simulate Login</button>
+
+        <p class="info-text">This page detects your device type when you log in.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginBtn = document.getElementById('loginBtn');
+            const deviceCards = document.querySelectorAll('.device-card');
+
+            // Function to detect device type
+            function detectDevice() {
+                const userAgent = navigator.userAgent.toLowerCase();
+
+                // Check for TV devices
+                if (userAgent.includes('tv') || userAgent.includes('smart-tv') ||
+                    userAgent.includes('crkey') || userAgent.includes('googletv')) {
+                    return 'tv';
+                }
+
+                // Check for iOS devices
+                if (/iphone|ipad|ipod/.test(userAgent)) {
+                    return 'ios';
+                }
+
+                // Check for Android devices
+                if (/android/.test(userAgent)) {
+                    return 'android';
+                }
+
+                // Default to PC/Desktop
+                return 'pc';
+            }
+
+            // Function to show appropriate device card
+            function showDeviceCard(deviceType) {
+                // Hide all cards first
+                deviceCards.forEach(card => {
+                    card.classList.remove('active');
+                });
+
+                // Show the appropriate card
+                const activeCard = document.querySelector(`.${deviceType}-card`);
+                if (activeCard) {
+                    activeCard.classList.add('active');
+                }
+            }
+
+            // Simulate login process
+            loginBtn.addEventListener('click', function () {
+                // Detect device
+                const deviceType = detectDevice();
+
+                // Show appropriate message
+                showDeviceCard(deviceType);
+
+                // Change button text
+                loginBtn.textContent = 'Login Successful!';
+                loginBtn.disabled = true;
+
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    loginBtn.textContent = 'Simulate Login Again';
+                    loginBtn.disabled = false;
+                }, 3000);
+            });
+
+            // Show initial state message
+            const initialMessage = document.createElement('div');
+            initialMessage.className = 'device-message';
+            initialMessage.textContent = 'Click the button below to simulate a login and detect your device.';
+            initialMessage.style.marginTop = '20px';
+            document.querySelector('.container').insertBefore(initialMessage, loginBtn);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Square Cursor - Fit to Border</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .cursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            background-color: transparent;
+            border-radius: 2px;
+            width: 24px;
+            height: 24px;
+            top: 0;
+            left: 0;
+        }
+
+        .cursor.hover {
+            border-color: #ff5252;
+            background-color: rgba(255, 82, 82, 0.1);
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: all 0.2s ease;
+        }
+
+        .cursor.hover+.cursor-dot {
+            background-color: #ff5252;
+            transform: scale(1.5);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, background 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .card h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        .card p {
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cursor-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .cursor-demo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .cursor-preview {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cursor-preview-square {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            position: relative;
+            border-radius: 2px;
+        }
+
+        .cursor-preview-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .demo-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .demo-elements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .demo-box {
+            width: 120px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .demo-box:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .demo-rectangle {
+            width: 180px;
+            height: 60px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <div class="container">
+        <header>
+            <h1>Square Cursor - Fit to Border</h1>
+            <p class="subtitle">Hover over elements to see the cursor expand and fit their borders. The cursor
+                dynamically resizes to match element dimensions.</p>
+
+            <div class="cursor-demo">
+                <div class="cursor-preview">
+                    <div class="cursor-preview-square">
+                        <div class="cursor-preview-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="card">
+                <h2>Dynamic Border Fit</h2>
+                <p>When you hover over elements, the square cursor expands to fit their borders. This creates a unique
+                    interactive experience.</p>
+            </div>
+
+            <div class="card">
+                <h2>How It Works</h2>
+                <p>JavaScript calculates the position and dimensions of hovered elements, then animates the cursor to
+                    match their borders.</p>
+            </div>
+
+            <div class="card">
+                <h2>Try It Out</h2>
+                <p>Move your cursor over buttons, cards, and demo elements below to see the cursor dynamically resize to
+                    fit their borders.</p>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn">Hover Over Me</button>
+            <button class="btn">Try This Button</button>
+            <button class="btn">Border Fit Cursor</button>
+        </div>
+
+        <div class="demo-section">
+            <h2 style="text-align: center;">Demo Elements - Hover to See Cursor Fit</h2>
+            <div class="demo-elements">
+                <div class="demo-box">Small Box</div>
+                <div class="demo-box demo-rectangle">Rectangle</div>
+                <div class="demo-box">Another Box</div>
+                <div class="demo-box demo-rectangle">Wide Element</div>
+            </div>
+        </div>
+
+        <div class="cursor-info">
+            <h2>Cursor Behavior</h2>
+            <p>The cursor expands to fit the borders of any element you hover over. It maintains its square shape but
+                dynamically resizes to match element dimensions.</p>
+        </div>
+
+        <footer>
+            <p>Square Cursor - Fit to Border &copy; 2023</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cursor = document.querySelector('.cursor');
+            const cursorDot = document.querySelector('.cursor-dot');
+
+            // Default cursor size
+            const defaultSize = 24;
+
+            // Track mouse movement
+            document.addEventListener('mousemove', (e) => {
+                // Position the cursor at the mouse coordinates
+                cursor.style.left = (e.pageX - cursor.offsetWidth / 2) + 'px';
+                cursor.style.top = (e.pageY - cursor.offsetHeight / 2) + 'px';
+
+                // Position the dot at the mouse coordinates
+                cursorDot.style.left = (e.pageX - cursorDot.offsetWidth / 2) + 'px';
+                cursorDot.style.top = (e.pageY - cursorDot.offsetHeight / 2) + 'px';
+            });
+
+            // Add hover effect to interactive elements
+            const interactiveElements = document.querySelectorAll('button, .card, .demo-box');
+
+            interactiveElements.forEach(element => {
+                element.addEventListener('mouseenter', (e) => {
+                    cursor.classList.add('hover');
+
+                    // Get element position and dimensions
+                    const rect = element.getBoundingClientRect();
+                    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+                    // Calculate position and size
+                    const width = rect.width;
+                    const height = rect.height;
+                    const left = rect.left + scrollLeft;
+                    const top = rect.top + scrollTop;
+
+                    // Apply the element's dimensions to the cursor
+                    cursor.style.width = width + 'px';
+                    cursor.style.height = height + 'px';
+                    cursor.style.left = left + 'px';
+                    cursor.style.top = top + 'px';
+                    cursor.style.borderRadius = window.getComputedStyle(element).borderRadius;
+                });
+
+                element.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover');
+
+                    // Reset cursor to default size
+                    cursor.style.width = defaultSize + 'px';
+                    cursor.style.height = defaultSize + 'px';
+                    cursor.style.borderRadius = '2px';
+                });
+            });
+
+            // Hide cursor when leaving the window
+            document.addEventListener('mouseleave', () => {
+                cursor.style.opacity = '0';
+                cursorDot.style.opacity = '0';
+            });
+
+            // Show cursor when entering the window
+            document.addEventListener('mouseenter', () => {
+                cursor.style.opacity = '1';
+                cursorDot.style.opacity = '1';
+            });
+        });
+    </script>
+</body>
+
+</html>

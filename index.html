@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Portfolio | 3D Space Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+            cursor: none;
+        }
+
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(78, 205, 196, 0.7);
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 107, 107, 0.4);
+            pointer-events: none;
+            z-index: 9998;
+            mix-blend-mode: difference;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #cccccc;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(0, 0, 0, 0.95);
+            padding: 1rem 0;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: #4ecdc4;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #ffffff;
+            transition: 0.3s;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+        }
+
+        .hero h1 {
+            font-size: clamp(3.5rem, 8vw, 9rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff, #cccccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: #cccccc;
+            max-width: 500px;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        /* 3D Canvas */
+        #three-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.2));
+            position: relative;
+            z-index: 2;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 4rem;
+            background: linear-gradient(135deg, #ffffff, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2.5rem;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: rgba(78, 205, 196, 0.3);
+            box-shadow: 0 20px 40px rgba(78, 205, 196, 0.2);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #4ecdc4;
+        }
+
+        .feature-card p {
+            color: #cccccc;
+            font-weight: 300;
+        }
+
+        /* Projects Section */
+        .projects {
+            padding: 120px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 107, 107, 0.3);
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.2);
+        }
+
+        .project-image {
+            height: 200px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .project-content p {
+            color: #cccccc;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .project-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #cccccc;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 120px 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.2));
+            position: relative;
+            z-index: 2;
+        }
+
+        .contact-content {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact p {
+            font-size: 1.2rem;
+            color: #cccccc;
+            margin-bottom: 3rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #4ecdc4;
+        }
+
+        .copyright {
+            color: #888888;
+            font-size: 0.9rem;
+        }
+
+        /* Audio Controls */
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .audio-toggle {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .audio-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .sound-control {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .sound-control:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Sound Visualizer */
+        .sound-visualizer {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 50px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .visualizer-bar {
+            width: 30px;
+            background: linear-gradient(to top, #ff6b6b, #4ecdc4);
+            border-radius: 15px;
+            transition: height 0.1s ease;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+
+            .feature-grid,
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            .custom-cursor,
+            .cursor-trail {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="cursor"></div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-logo">COSMIC PORTFOLIO</div>
+            <div class="loading-text">Initializing Space Experience...</div>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loadingProgress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="nav">
+        <div class="container nav-content">
+            <div class="logo">COSMIC</div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#work">Work</a>
+                <a href="#projects">Projects</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container hero-content">
+            <h1>EXPLORE THE COSMOS</h1>
+            <p>Creating immersive 3D experiences that transport users to new dimensions of digital interaction.</p>
+            <button class="cta-button" id="exploreBtn">Begin Journey</button>
+        </div>
+        <canvas id="three-canvas"></canvas>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="work">
+        <div class="container">
+            <h2 class="section-title">Our Services</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>3D Modeling</h3>
+                    <p>Custom 3D assets and animations tailored to your brand identity, bringing static designs to
+                        vibrant life.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Web Integration</h3>
+                    <p>Seamless integration of 3D elements into modern web experiences, optimized for performance across
+                        devices.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Interactive Design</h3>
+                    <p>Engaging user interactions that bring your content to life with intuitive and responsive 3D
+                        environments.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+        <div class="container">
+            <h2 class="section-title">Featured Projects</h2>
+            <div class="project-grid">
+                <div class="project-card">
+                    <div class="project-image">🌌</div>
+                    <div class="project-content">
+                        <h3>Nebula Explorer</h3>
+                        <p>Interactive 3D visualization of cosmic nebulae with real-time particle systems.</p>
+                        <div class="project-tags">
+                            <span class="project-tag">Three.js</span>
+                            <span class="project-tag">WebGL</span>
+                            <span class="project-tag">GSAP</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">🪐</div>
+                    <div class="project-content">
+                        <h3>Solar System Simulator</h3>
+                        <p>Educational experience showcasing planetary orbits with accurate physics.</p>
+                        <div class="project-tags">
+                            <span class="project-tag">3D Animation</span>
+                            <span class="project-tag">Physics</span>
+                            <span class="project-tag">React</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">🚀</div>
+                    <div class="project-content">
+                        <h3>Space Mission Control</h3>
+                        <p>Immersive dashboard for monitoring space missions with real-time data visualization.</p>
+                        <div class="project-tags">
+                            <span class="project-tag">Data Viz</span>
+                            <span class="project-tag">UI/UX</span>
+                            <span class="project-tag">WebSockets</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-content">
+                <h2 class="section-title">Ready to Launch?</h2>
+                <p>Let's collaborate to create something extraordinary. Reach out to discuss your next project.</p>
+                <button class="cta-button">Contact Me</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#">Twitter</a>
+                <a href="#">LinkedIn</a>
+                <a href="#">GitHub</a>
+                <a href="#">Dribbble</a>
+            </div>
+            <div class="copyright">
+                &copy; 2023 Cosmic Portfolio. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Audio Controls -->
+    <div class="audio-controls">
+        <div class="sound-visualizer">
+            <div class="visualizer-bar" id="visualizer"></div>
+        </div>
+        <button class="audio-toggle" id="audioToggle">🔊</button>
+        <button class="sound-control" id="soundControl">🎵</button>
+    </div>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        const cursorTrails = [];
+        const trailCount = 10;
+
+        for (let i = 0; i < trailCount; i++) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            document.body.appendChild(trail);
+            cursorTrails.push({
+                element: trail,
+                x: 0,
+                y: 0,
+                delay: i * 3
+            });
+        }
+
+        let mouseX = 0, mouseY = 0;
+        let trailX = 0, trailY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            // Play cursor movement sound
+            playSound('hover', 0.1, 100 + (Math.abs(e.movementX) + Math.abs(e.movementY)) * 2);
+
+            // Update visualizer based on movement speed
+            const movement = Math.min(1, (Math.abs(e.movementX) + Math.abs(e.movementY)) / 50);
+            updateVisualizer(movement);
+        });
+
+        function updateCursor() {
+            // Main cursor
+            cursor.style.left = mouseX - 10 + 'px';
+            cursor.style.top = mouseY - 10 + 'px';
+
+            // Smooth trail movement
+            trailX += (mouseX - trailX) * 0.2;
+            trailY += (mouseY - trailY) * 0.2;
+
+            // Update trails
+            cursorTrails.forEach((trail, index) => {
+                setTimeout(() => {
+                    trail.element.style.left = (trailX - 3) + 'px';
+                    trail.element.style.top = (trailY - 3) + 'px';
+                    trail.element.style.opacity = 1 - (index / trailCount);
+                }, trail.delay);
+            });
+
+            requestAnimationFrame(updateCursor);
+        }
+
+        updateCursor();
+
+        // Sound System
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let masterGain = audioContext.createGain();
+        masterGain.connect(audioContext.destination);
+        masterGain.gain.value = 0.5;
+
+        const soundEffects = {
+            hover: { type: 'sine', frequency: 300, duration: 0.1 },
+            click: { type: 'sawtooth', frequency: 200, duration: 0.2 },
+            whoosh: { type: 'triangle', frequency: 150, duration: 0.5 },
+            space: { type: 'noise', frequency: 0, duration: 1 },
+            cosmic: { type: 'sine', frequency: 400, duration: 0.3 }
+        };
+
+        function playSound(soundName, volume = 0.5, frequency = null) {
+            if (!audioEnabled) return;
+
+            const sound = soundEffects[soundName];
+            if (!sound) return;
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(masterGain);
+
+            // Set oscillator type
+            oscillator.type = sound.type;
+
+            // Set frequency
+            if (sound.type === 'noise') {
+                // Create brown noise for space ambiance
+                const bufferSize = audioContext.sampleRate * sound.duration;
+                const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                const output = buffer.getChannelData(0);
+
+                let lastOut = 0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    output[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = output[i];
+                    output[i] *= 3.5;
+                }
+
+                const source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(gainNode);
+                gainNode.gain.value = volume * 0.1;
+                source.start();
+                source.stop(audioContext.currentTime + sound.duration);
+                return;
+            } else {
+                oscillator.frequency.value = frequency || sound.frequency;
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + sound.duration);
+            }
+
+            // Apply volume envelope
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + sound.duration);
+        }
+
+        // Visualizer
+        function updateVisualizer(intensity) {
+            const visualizer = document.getElementById('visualizer');
+            visualizer.style.height = (intensity * 80) + 'px';
+        }
+
+        // Audio Controls
+        const audioToggle = document.getElementById('audioToggle');
+        const soundControl = document.getElementById('soundControl');
+        let audioEnabled = true;
+        let ambientSoundEnabled = true;
+
+        // Ambient space sound
+        let ambientNoise;
+        function playAmbientSound() {
+            if (!ambientSoundEnabled) return;
+
+            const bufferSize = audioContext.sampleRate * 2;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const output = buffer.getChannelData(0);
+
+            let lastOut = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                output[i] = (lastOut + (0.02 * white)) / 1.02;
+                lastOut = output[i];
+                output[i] *= 3.5;
+            }
+
+            ambientNoise = audioContext.createBufferSource();
+            ambientNoise.buffer = buffer;
+            ambientNoise.loop = true;
+
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = 0.03;
+
+            ambientNoise.connect(gainNode);
+            gainNode.connect(masterGain);
+            ambientNoise.start();
+        }
+
+        audioToggle.addEventListener('click', () => {
+            audioEnabled = !audioEnabled;
+            if (audioEnabled) {
+                audioToggle.innerHTML = '🔊';
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            } else {
+                audioToggle.innerHTML = '🔇';
+            }
+        });
+
+        soundControl.addEventListener('click', () => {
+            ambientSoundEnabled = !ambientSoundEnabled;
+            if (ambientSoundEnabled) {
+                soundControl.innerHTML = '🎵';
+                playAmbientSound();
+            } else {
+                soundControl.innerHTML = '🔇';
+                if (ambientNoise) {
+                    ambientNoise.stop();
+                }
+            }
+        });
+
+        // Interactive Sound Effects
+        document.querySelectorAll('a, button, .feature-card, .project-card').forEach(element => {
+            element.addEventListener('mouseenter', () => {
+                playSound('hover', 0.2, 500);
+                cursor.style.transform = 'scale(1.5)';
+            });
+
+            element.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+            });
+
+            element.addEventListener('click', () => {
+                playSound('click', 0.3);
+            });
+        });
+
+        // Scroll sound effect
+        let lastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            const scrollDelta = Math.abs(window.scrollY - lastScrollY);
+            if (scrollDelta > 5) {
+                playSound('whoosh', Math.min(0.2, scrollDelta / 100), 100 + scrollDelta);
+            }
+            lastScrollY = window.scrollY;
+        });
+
+        // Loading Screen Management
+        window.addEventListener('load', () => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const loadingProgress = document.getElementById('loadingProgress');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                loadingProgress.style.width = Math.min(progress, 100) + '%';
+
+                // Play loading sound
+                if (progress % 20 < 5) {
+                    playSound('cosmic', 0.1, 200 + progress * 5);
+                }
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            // Start ambient sound after loading
+                            playAmbientSound();
+                        }, 1000);
+                    }, 500);
+                }
+            }, 200);
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Explore Button - Redirect to firstpage.html
+        document.getElementById('exploreBtn').addEventListener('click', () => {
+            // Play a special sound effect for the journey
+            playSound('cosmic', 0.5, 600);
+
+            // Add a transition effect before redirecting
+            const loadingScreen = document.getElementById('loadingScreen');
+            loadingScreen.style.display = 'flex';
+            loadingScreen.style.opacity = '1';
+
+            // Update loading text for the journey
+            document.querySelector('.loading-text').textContent = 'Launching to New Dimensions...';
+
+            // Redirect after a brief delay for the transition effect
+            setTimeout(() => {
+                window.location.href = 'firstpage.html';
+            }, 1500);
+        });
+
+        // Three.js Scene Setup
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.getElementById('three-canvas'),
+            alpha: true,
+            antialias: true
+        });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.2);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4);
+        directionalLight.position.set(10, 10, 5);
+        scene.add(directionalLight);
+
+        // Enhanced Point Lights
+        const pointLights = [];
+        const lightColors = [0xff6b6b, 0x4ecdc4, 0x45b7d1, 0xff9ff3, 0xfeca57, 0xff9f43, 0x6c5ce7, 0xa29bfe];
+
+        for (let i = 0; i < 8; i++) {
+            const pointLight = new THREE.PointLight(lightColors[i], 0.6, 60);
+            pointLight.position.set(
+                (Math.random() - 0.5) * 50,
+                (Math.random() - 0.5) * 50,
+                (Math.random() - 0.5) * 50
+            );
+            scene.add(pointLight);
+            pointLights.push(pointLight);
+        }
+
+        // Planets
+        const planets = [];
+        const planetGeometries = [
+            new THREE.SphereGeometry(1, 32, 32),
+            new THREE.SphereGeometry(0.8, 32, 32),
+            new THREE.SphereGeometry(1.2, 32, 32)
+        ];
+
+        const planetMaterialColors = [0x4ecdc4, 0xff6b6b, 0x45b7d1];
+        const planetCount = 5;
+
+        for (let i = 0; i < planetCount; i++) {
+            const geometry = planetGeometries[Math.floor(Math.random() * planetGeometries.length)];
+            const colorIndex = Math.floor(Math.random() * planetMaterialColors.length);
+            const material = new THREE.MeshPhysicalMaterial({
+                color: planetMaterialColors[colorIndex],
+                metalness: 0.1,
+                roughness: 0.8,
+                transparent: true,
+                opacity: 0.9,
+                emissive: planetMaterialColors[colorIndex],
+                emissiveIntensity: 0.1
+            });
+
+            const planet = new THREE.Mesh(geometry, material);
+            planet.position.set(
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 20
+            );
+
+            planet.userData = {
+                orbitSpeed: Math.random() * 0.005 + 0.002,
+                rotationSpeed: Math.random() * 0.02 + 0.01,
+            };
+
+            scene.add(planet);
+            planets.push(planet);
+        }
+
+        // Floating Objects
+        const objects = [];
+        const geometries = [
+            new THREE.IcosahedronGeometry(0.3, 1),
+            new THREE.TorusGeometry(0.4, 0.1, 16, 100),
+            new THREE.OctahedronGeometry(0.3, 0),
+            new THREE.DodecahedronGeometry(0.3, 0)
+        ];
+
+        const materials = [
+            new THREE.MeshPhysicalMaterial({ color: 0xff9ff3, metalness: 0.5, roughness: 0.5, transparent: true, opacity: 0.8 }),
+            new THREE.MeshPhysicalMaterial({ color: 0xfeca57, metalness: 0.5, roughness: 0.5, transparent: true, opacity: 0.8 }),
+            new THREE.MeshPhysicalMaterial({ color: 0x6c5ce7, metalness: 0.5, roughness: 0.5, transparent: true, opacity: 0.8 })
+        ];
+
+        const objectCount = 15;
+
+        for (let i = 0; i < objectCount; i++) {
+            const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+            const material = materials[Math.floor(Math.random() * materials.length)];
+            const mesh = new THREE.Mesh(geometry, material);
+
+            mesh.position.set(
+                (Math.random() - 0.5) * 30,
+                (Math.random() - 0.5) * 30,
+                (Math.random() - 0.5) * 30
+            );
+
+            mesh.userData = {
+                speed: Math.random() * 0.02 + 0.005,
+                floatSpeed: Math.random() * 0.003 + 0.001
+            };
+
+            scene.add(mesh);
+            objects.push(mesh);
+        }
+
+        // Star Field
+        const starLayers = [];
+
+        for (let layer = 0; layer < 5; layer++) {
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 500 + layer * 400;
+            const posArray = new Float32Array(particlesCount * 3);
+            const sizes = new Float32Array(particlesCount);
+            const colors = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount * 3; i += 3) {
+                posArray[i] = (Math.random() - 0.5) * (60 + layer * 20);
+                posArray[i + 1] = (Math.random() - 0.5) * (60 + layer * 20);
+                posArray[i + 2] = (Math.random() - 0.5) * (60 + layer * 20);
+                sizes[i / 3] = Math.random() * 0.003 + 0.0005;
+
+                const color = new THREE.Color().setHSL(Math.random() * 0.1 + 0.55, 0.1, Math.random() * 0.5 + 0.5);
+                colors[i] = color.r;
+                colors[i + 1] = color.g;
+                colors[i + 2] = color.b;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.002,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8 - layer * 0.15,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            starLayers.push(particlesMesh);
+        }
+
+        // Camera setup
+        let zoomLevel = 10;
+        camera.position.z = zoomLevel;
+
+        // Mouse interaction for 3D scene
+        let mouseX3D = 0;
+        let mouseY3D = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX3D = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY3D = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Time
+        let time = 0;
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            // Smooth camera movement based on mouse
+            camera.position.x += (mouseX3D * 3 - camera.position.x) * 0.02;
+            camera.position.y += (mouseY3D * 3 - camera.position.y) * 0.02;
+            camera.lookAt(scene.position);
+
+            // Animate planets
+            planets.forEach((planet, index) => {
+                planet.rotation.y += planet.userData.rotationSpeed;
+
+                // Orbit planets around center
+                planet.position.x = Math.cos(time * planet.userData.orbitSpeed + index) * 8;
+                planet.position.z = Math.sin(time * planet.userData.orbitSpeed + index) * 8;
+                planet.position.y = Math.sin(time * 0.001 + index) * 3;
+            });
+
+            // Animate floating objects
+            objects.forEach((obj) => {
+                obj.rotation.x += obj.userData.speed * 0.3;
+                obj.rotation.y += obj.userData.speed * 0.5;
+                obj.position.y += Math.sin(time * obj.userData.floatSpeed) * 0.002;
+            });
+
+            // Animate star layers
+            starLayers.forEach((layer, index) => {
+                layer.rotation.y += 0.0001 * (index + 1);
+            });
+
+            // Animate lights
+            pointLights.forEach((light, index) => {
+                light.position.x += Math.sin(time * 0.3 + index) * 0.02;
+                light.position.y += Math.cos(time * 0.4 + index) * 0.02;
+                light.position.z += Math.sin(time * 0.5 + index) * 0.02;
+                light.intensity = 0.4 + Math.sin(time * 2 + index) * 0.2;
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Start animation
+        animate();
+    </script>
+</body>
+
+</html>
